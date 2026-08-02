@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>▲ VERIFICACIÓN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0908;
+    --bg-panel: #121110;
+    --ink: #c9c2b8;
+    --ink-dim: #665f58;
+    --accent: #7a1f1f;
+    --accent-glow: #b33a2e;
+    --ok: #3d7a4f;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    overflow: hidden;
+  }
+
+  body::before {
+    /* textura de grano, para que no se sienta "plano" */
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .stage {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .panel {
+    width: 100%;
+    max-width: 420px;
+    background: var(--bg-panel);
+    border: 1px solid #262220;
+    padding: 40px 32px;
+    position: relative;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
+    animation: scan 3s ease-in-out infinite;
+  }
+
+  @keyframes scan {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  .glyph {
+    font-family: 'Special Elite', serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--ink-dim);
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-family: 'Special Elite', serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    text-align: center;
+    margin: 0 0 32px;
+    color: var(--ink);
+    font-weight: normal;
+  }
+
+  input {
+    width: 100%;
+    background: #050403;
+    border: 1px solid #262220;
+    color: var(--accent-glow);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    letter-spacing: 3px;
+    text-align: center;
+    text-transform: uppercase;
+    padding: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus {
+    border-color: var(--accent-glow);
+  }
+
+  input::placeholder {
+    color: var(--ink-dim);
+    letter-spacing: 2px;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 14px;
+    padding: 13px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  button:hover:not(:disabled) {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .status {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 2px;
+    min-height: 16px;
+  }
+
+  .status.err { color: var(--accent-glow); }
+  .status.ok { color: var(--ok); }
+
+  .shake { animation: shake 0.4s; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+
+  /* --- contenido oculto, se revela solo si el código es válido --- */
+  .reveal {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.2s ease;
+    z-index: 10;
+  }
+
+  .reveal.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .reveal p {
+    font-family: 'Special Elite', serif;
+    font-size: 22px;
+    line-height: 1.7;
+    color: var(--ok);
+    max-width: 480px;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="panel" id="panel">
+    <div class="glyph">▲ △ ▲</div>
+    <h1>INGRESA EL CÓDIGO</h1>
+    <input type="text" id="code" placeholder="_ _ _ _ _" maxlength="20" autocomplete="off" spellcheck="false">
+    <button id="submitBtn">VERIFICAR</button>
+    <div class="status" id="status"></div>
+  </div>
+</div>
+
+<!-- Esto se muestra SOLO si el backend confirma que el código es válido -->
+<div class="reveal" id="reveal">
+  <p id="revealText">Escribe aquí lo que quieras que aparezca cuando el código sea correcto.</p>
+</div>
+
+<script>
+const input = document.getElementById('code');
+const btn = document.getElementById('submitBtn');
+const status = document.getElementById('status');
+const panel = document.getElementById('panel');
+const revealDiv = document.getElementById('reveal');
+
+async function verificarCodigo() {
+  const codigo = input.value.trim();
+  if (!codigo) return;
+
+  btn.disabled = true;
+  status.textContent = 'VERIFICANDO...';
+  status.className = 'status';
+
+  try {
+    const res = await fetch('/api/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: codigo })
+    });
+    const data = await res.json();
+
+    if (data.valid) {
+      status.textContent = 'CORRECTO';
+      status.className = 'status ok';
+
+      // ---------------------------------------------------------
+      // AQUÍ VA TU "X COSA" — elige una opción o combínalas:
+      // ---------------------------------------------------------
+
+      // Opción A: revelar un mensaje/pista en pantalla completa
+      revealDiv.classList.add('show');
+
+      // Opción B: redirigir a otra página (ej. la siguiente pista)
+      // window.location.href = '/siguiente-pista.html';
+
+      // Opción C: reproducir un audio/video oculto
+      // document.getElementById('miAudio').play();
+
+      // Opción D: mostrar un elemento que estaba escondido en el DOM
+      // document.getElementById('algo-oculto').style.display = 'block';
+
+    } else {
+      status.textContent = 'CÓDIGO INCORRECTO';
+      status.className = 'status err';
+      panel.classList.remove('shake');
+      void panel.offsetWidth; // fuerza el reflow para poder repetir la animación
+      panel.classList.add('shake');
+    }
+  } catch (e) {
+    status.textContent = 'ERROR DE CONEXIÓN';
+    status.className = 'status err';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+btn.addEventListener('click', verificarCodigo);
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') verificarCodigo();
+});
+</script>
+
+</body>
+</html>
